@@ -1,0 +1,90 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <span>
+        криллээр бичих
+    </span>
+    <input type="text" id="text" />
+    <button type="button" id="btn">SEARCH</button>
+    <hr />
+    <button onclick="playAudio()" type="button">Play Audio</button>
+    <button onclick="pauseAudio()" type="button">Pause Audio</button>
+</body>
+<script>
+    const btnElement = document.getElementById("btn")
+    const chimegeElement = document.getElementById("chimege")
+    const audio = document.getElementById("audio");
+    let voice = null
+
+    function playAudio()
+    {
+        if (!voice)
+        {
+            alert("үгээ бич")
+            return
+        }
+        voice.play();
+    }
+
+    function pauseAudio()
+    {
+        if (!voice)
+        {
+            alert("үгээ бич")
+            return
+        }
+        voice.pause();
+    }
+
+    /** text ийг chimege системээс audio болгож авах нь */
+    function findAudio(text)
+    {
+        if (!text)
+        {
+            alert("empty")
+            return
+        }
+        fetch(
+            "https://reader.chimege.com/api/v2/demo?voiceID=1&speed=1",
+            {
+                method: "POST",
+                body: text
+            }
+        )
+        .then(rsp =>
+        {
+            if (rsp.ok)
+            {
+                return rsp.json()
+            }
+            else
+            {
+                throw rsp
+            }
+        })
+        .then(
+            ({ data, code, message }) =>
+            {
+                alert(`haigaad olson ${message}`)
+                voice = new Audio(`data:audio/wav;base64,${data}`)
+            }
+        )
+        .catch(err => alert("aldaa"))
+    }
+
+    /** хайх товч дээр дарах input ний үгийг авч audio хайх */
+    function handleClick()
+    {
+        const textElement = document.getElementById("text")
+        const value = textElement.value
+        findAudio(value)
+    }
+
+    btnElement.addEventListener("click", handleClick)
+</script>
+</html>
